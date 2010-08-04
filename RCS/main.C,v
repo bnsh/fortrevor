@@ -1,0 +1,100 @@
+head	1.1;
+access;
+symbols;
+locks
+	binesh:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2010.08.04.05.53.49;	author binesh;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@-
+@
+text
+@#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <getopt.h>
+#include <time.h>
+#include <math.h>
+#include "time2str.H"
+#include "levenberg_marquardt.H"
+#include "cboe_reader.H"
+#include "bsmodel.H"
+#include "bsmodels/bsmodel_base.H"
+#include "bsmodels/bsmodel_2_vr.H"
+
+static void compute_params(cboe_option_quote *options, int num_options,double *best_guess, double *refined) __attribute__ ((unused));
+static void compute_params(cboe_option_quote *options, int num_options,double *best_guess, double *refined) {
+	levenberg_marquardt_binesh lm;
+	bsmodel_base **model_opts = new bsmodel_base *[num_options];
+
+	for (int j = 0; j < num_options; ++j) {
+		bsmodel_base *bm = new bsmodel_2_vr(options[j]);
+		model_opts[j] = bm;
+		if (
+			((options[j].bid() > 0.05) && (options[j].ask() > 0.05)) &&
+			1
+		) lm.add(bm);
+	}
+	lm.refine(best_guess,refined);
+	for (int j = 0; j < num_options; ++j) { delete model_opts[j]; model_opts[j] = NULL; }
+	delete[] model_opts;
+}
+
+int main(int argc,char *argv[]) {
+	double refined[10];
+	double best_guess[10];
+
+	refined[0] = best_guess[0] = 0.30;
+	refined[1] = best_guess[1] = log(1.1525);
+	for (int j = 2; j < 10; ++j) refined[j] = best_guess[j] = 0.0;
+
+	for (int f = 1; f < argc; ++f) {
+		cboe_reader cr;
+		cr.read_file(argv[f]);
+
+		int num_options = cr.num_options();
+		cboe_option_quote *options = cr.options();
+
+/*
+		char buffer[1024];
+		for (int i = 0; i < num_options; ++i) {
+			fprintf(stderr,"%s",options[i].option_symbol());
+			fprintf(stderr,"	%s",time2str(buffer,1024,"%Y-%m-%d",options[i].expiration()));
+			if (options[i].type() == 1) fprintf(stderr,"	CALL");
+			else if (options[i].type() == -1) fprintf(stderr,"	 PUT");
+			else abort(); // Should never happen.
+			fprintf(stderr,"	$%.2f",options[i].strike());
+			fprintf(stderr,"	$%.2f",options[i].bid());
+			fprintf(stderr,"	$%.2f",options[i].ask());
+			fprintf(stderr,"\n");
+		}
+ */
+
+		for (int j = 0; j < 10; ++j) best_guess[j] = refined[j];
+		compute_params(options,num_options,best_guess,refined);
+		fprintf(stderr,"refined = ");
+		for (int j = 0; j < 10; ++j) {
+			if (j) fprintf(stderr,", ");
+			fprintf(stderr,"%.7f",refined[j]);
+		}
+		fprintf(stderr,"\n");
+
+		fprintf(stderr,"implied yearly volatility: %.7f\n",refined[0]);
+		fprintf(stderr,"implied yearly risk free rate: %.7f\n",refined[1]);
+	}
+
+	return(0);
+}
+@

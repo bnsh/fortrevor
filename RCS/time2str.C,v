@@ -1,0 +1,32 @@
+head	1.1;
+access;
+symbols;
+locks
+	binesh:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2010.08.04.05.53.49;	author binesh;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@-
+@
+text
+@#include <stdio.h>
+#include <time.h>
+#include "time2str.H"
+
+const char *time2str(char *buffer, int sz, const char *fmt, time_t t) {
+	strftime(buffer,sz,fmt,localtime(&t));
+	return(buffer);
+}
+@
