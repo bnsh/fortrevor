@@ -64,7 +64,7 @@ int main(int argc,char *argv[]) {
 		for (int i = 0; i < n*n; ++i) {
 			trevorfunction *tf = (trevorfunction *)f[i];
 			double r = tf->val(refined);
-			double p = tf->val(params);
+			double p = tf->_y;
 			double err2 = (r-p)*(r-p);
 			sse += err2;
 			printf("f[%.7f,%.7f] = %.7f (fitted to %.7f) (err^2=%.7f (%.7f))\n",tf->_x0, tf->_x1,p, r, err2, sse);
