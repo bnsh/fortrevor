@@ -47,7 +47,7 @@ test: all
 	./main data/2010/07/18/QQQQ-025300 data/2010/07/18/QQQQ-054408
 
 git:
-	/usr/local/bin/git commit -a
+	/usr/local/bin/git commit -a --message "Automatic from Makefile"
 	/usr/local/bin/git push
 
 clean:
