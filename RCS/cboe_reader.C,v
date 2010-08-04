@@ -1,10 +1,15 @@
-head	1.1;
+head	1.2;
 access;
 symbols;
 locks
-	binesh:1.1; strict;
+	binesh:1.2; strict;
 comment	@ * @;
 
+
+1.2
+date	2010.08.04.18.12.58;	author binesh;	state Exp;
+branches;
+next	1.1;
 
 1.1
 date	2010.08.04.05.53.49;	author binesh;	state Exp;
@@ -16,7 +21,7 @@ desc
 @@
 
 
-1.1
+1.2
 log
 @-
 @
@@ -66,6 +71,61 @@ static time_t next_expiration_friday(time_t t) {
 	}
 }
 
+static time_t parse_symbol_for_expiration(const char *sym, double strike_p, int year_p, int month_p) {
+// So, first situate ourselves with the last expiration month code.
+	int month = -1;
+	const char *month_code;
+	const char *p;
+	for (p = sym; ((*p)); ++p) if (('A' <= (*p)) && ((*p) <= 'X')) month_code = p;
+	     if ((*month_code) == 'A') month =  0; // January
+	else if ((*month_code) == 'B') month =  1; // February
+	else if ((*month_code) == 'C') month =  2; // March
+	else if ((*month_code) == 'D') month =  3; // April
+	else if ((*month_code) == 'E') month =  4; // May
+	else if ((*month_code) == 'F') month =  5; // June
+	else if ((*month_code) == 'G') month =  6; // July
+	else if ((*month_code) == 'H') month =  7; // August
+	else if ((*month_code) == 'I') month =  8; // September
+	else if ((*month_code) == 'J') month =  9; // October
+	else if ((*month_code) == 'K') month = 10; // November
+	else if ((*month_code) == 'L') month = 11; // December
+	else if ((*month_code) == 'M') month =  0; // January
+	else if ((*month_code) == 'N') month =  1; // February
+	else if ((*month_code) == 'O') month =  2; // March
+	else if ((*month_code) == 'P') month =  3; // April
+	else if ((*month_code) == 'Q') month =  4; // May
+	else if ((*month_code) == 'R') month =  5; // June
+	else if ((*month_code) == 'S') month =  6; // July
+	else if ((*month_code) == 'T') month =  7; // August
+	else if ((*month_code) == 'U') month =  8; // September
+	else if ((*month_code) == 'V') month =  9; // October
+	else if ((*month_code) == 'W') month = 10; // November
+	else if ((*month_code) == 'X') month = 11; // December
+
+	p = month_code+1;
+	double strike = atof(p);
+
+	p = month_code-4;
+	char yrstr[3], dystr[3];
+	strncpy(yrstr,p  ,2); yrstr[2] = 0;
+	strncpy(dystr,p+2,2); dystr[2] = 0;
+	int year = 2000 + atoi(yrstr);
+	int day = atoi(dystr);
+	time_t retVal = -1;
+
+	if ((month == month_p) && (year == year_p) && (strike == strike_p)) {
+		struct tm T;
+		memset(&T,'\0',sizeof(struct tm)); T.tm_isdst = -1; // Time zone insanity.
+		T.tm_year = year - 1900;
+		T.tm_mon = month;
+		T.tm_mday = day;
+		T.tm_hour = 17;
+		T.tm_min = 30;
+		retVal = mktime(&T);
+	}
+	return(retVal);
+}
+
 static const char *parse_option(const char *raw, time_t& exp, double& strike, char sym[],char exchange[]) {
 	struct tm T;
 	char *scratch = NULL;
@@ -83,7 +143,10 @@ static const char *parse_option(const char *raw, time_t& exp, double& strike, ch
 		if (e) strcpy(exchange,e);
 		else exchange[0] = '\0';
 		strike = atof(sstrike);
-		exp = next_expiration_friday(mktime(&T));
+		time_t expd = parse_symbol_for_expiration(sym, strike, 1900+T.tm_year, T.tm_mon);
+		time_t expf = next_expiration_friday(mktime(&T));
+		if (expd != -1) exp = expd;
+		else expd = expf;
 	}
 	else rest = NULL;
 	return(rest);
@@ -175,7 +238,7 @@ void cboe_reader::process_line(char parambuffer[],int& line_no) {
 				memset(call_exchange,'\0',sizeof(call_exchange));
 				parse_option(callopt, call_expiration, call_strike, call_symbol, call_exchange);
 				strftime(buffer,1024,"%Y-%m-%d %H:%M:%S",localtime(&call_expiration));
-				if ((call_exchange[0] == '\0') && (call_ask >= call_bid) && ((call_ask > 0.0) || (call_bid > 0.0)) && ((0 != strncmp(call_symbol,"OOF",3)) && (0 != strncmp(call_symbol,"UQQ",3))) && (call_expiration > _quote_time)) {
+				if ((call_exchange[0] == '\0') && (call_ask >= call_bid) && ((call_ask > 0.0) || (call_bid > 0.0)) && ((0 != strncmp(call_symbol,"UDL",3)) && (0 != strncmp(call_symbol,"OOF",3)) && (0 != strncmp(call_symbol,"UQQ",3))) && (call_expiration > _quote_time)) {
 					int found = -1;
 					for (int i = 0; (i < _num_options) && (found < 0); ++i) {
 						cboe_option_quote& coq = _options[i];
@@ -225,7 +288,7 @@ void cboe_reader::process_line(char parambuffer[],int& line_no) {
 				memset(put_exchange,'\0',sizeof(put_exchange));
 				parse_option(putopt, put_expiration, put_strike, put_symbol, put_exchange);
 				strftime(buffer,1024,"%Y-%m-%d %H:%M:%S",localtime(&put_expiration));
-				if ((put_exchange[0] == '\0') && (put_ask >= put_bid) && ((put_ask > 0.0) || (put_bid > 0.0)) && ((0 != strncmp(put_symbol,"OOF",3)) && (0 != strncmp(put_symbol,"UQQ",3))) && (put_expiration > _quote_time)) {
+				if ((put_exchange[0] == '\0') && (put_ask >= put_bid) && ((put_ask > 0.0) || (put_bid > 0.0)) && ((0 != strncmp(put_symbol,"UDL",3)) && (0 != strncmp(put_symbol,"OOF",3)) && (0 != strncmp(put_symbol,"UQQ",3))) && (put_expiration > _quote_time)) {
 					int found = -1;
 					for (int i = 0; (i < _num_options) && (found < 0); ++i) {
 						cboe_option_quote& coq = _options[i];
@@ -382,4 +445,22 @@ void cboe_reader::compute_expirations_cache() {
 		}
 	}
 }
+@
+
+
+1.1
+log
+@-
+@
+text
+@d46 55
+d118 4
+a121 1
+		exp = next_expiration_friday(mktime(&T));
+d213 1
+a213 1
+				if ((call_exchange[0] == '\0') && (call_ask >= call_bid) && ((call_ask > 0.0) || (call_bid > 0.0)) && ((0 != strncmp(call_symbol,"OOF",3)) && (0 != strncmp(call_symbol,"UQQ",3))) && (call_expiration > _quote_time)) {
+d263 1
+a263 1
+				if ((put_exchange[0] == '\0') && (put_ask >= put_bid) && ((put_ask > 0.0) || (put_bid > 0.0)) && ((0 != strncmp(put_symbol,"OOF",3)) && (0 != strncmp(put_symbol,"UQQ",3))) && (put_expiration > _quote_time)) {
 @
