@@ -79,6 +79,7 @@ int main(int argc,char *argv[]) {
 			double actual = b2vr.actual_price();
 
 			binesh_sse += (actual - computed) * (actual - computed);
+/*
 			fprintf(stderr,"black_scholes(%.2f, %.2f, %.7f, %d, %.7f, %.7f) = %.7f	(actual=%.7f)\n",
 				b2vr.strike(),
 				b2vr.current(),
@@ -94,8 +95,9 @@ int main(int argc,char *argv[]) {
 			fprintf(stderr,"	vega=%.7f\n",b2vr.vega(params));
 			fprintf(stderr,"	rho=%.7f\n",b2vr.rho(params));
 			fprintf(stderr,"	gamma=%.7f\n",b2vr.gamma(params));
+ */
 		}
-		fprintf(stderr,"binesh_sse=%.7f\n",binesh_sse);
+		fprintf(stderr,"binesh_sse=%.7f num_options=%d\n",binesh_sse, num_options);
 
 		double trevor_sse = 0.0;
 		double trevor_refined[] = {
@@ -118,7 +120,7 @@ int main(int argc,char *argv[]) {
 			fprintf(stderr,"	gamma=%.7f\n",b2vr.gamma(params));
  */
 		}
-		fprintf(stderr,"trevor_sse=%.7f\n",trevor_sse);
+		fprintf(stderr,"trevor_sse=%.7f num_options=%d\n",trevor_sse, num_options);
 
 	}
 

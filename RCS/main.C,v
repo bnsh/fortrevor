@@ -1,10 +1,25 @@
-head	1.1;
+head	1.4;
 access;
 symbols;
 locks
-	binesh:1.1; strict;
+	binesh:1.4; strict;
 comment	@ * @;
 
+
+1.4
+date	2010.08.04.18.12.07;	author binesh;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2010.08.04.14.39.10;	author binesh;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2010.08.04.14.38.58;	author binesh;	state Exp;
+branches;
+next	1.1;
 
 1.1
 date	2010.08.04.05.53.49;	author binesh;	state Exp;
@@ -16,7 +31,7 @@ desc
 @@
 
 
-1.1
+1.4
 log
 @-
 @
@@ -93,8 +108,93 @@ int main(int argc,char *argv[]) {
 
 		fprintf(stderr,"implied yearly volatility: %.7f\n",refined[0]);
 		fprintf(stderr,"implied yearly risk free rate: %.7f\n",refined[1]);
+
+		double binesh_sse = 0.0;
+		for (int i = 0; i < num_options; ++i) {
+			const double *params = refined;
+			bsmodel_2_vr b2vr(options[i]);
+			double computed = b2vr.value(params);
+			double actual = b2vr.actual_price();
+
+			binesh_sse += (actual - computed) * (actual - computed);
+/*
+			fprintf(stderr,"black_scholes(%.2f, %.2f, %.7f, %d, %.7f, %.7f) = %.7f	(actual=%.7f)\n",
+				b2vr.strike(),
+				b2vr.current(),
+				b2vr.time_to_expiration(),
+				(b2vr.type() == -1),
+				b2vr.risk_free_rate(params),
+				b2vr.volatility(params),
+				computed,
+				actual
+			);
+			fprintf(stderr,"	delta=%.7f\n",b2vr.delta(params));
+			fprintf(stderr,"	theta=%.7f\n",b2vr.theta(params));
+			fprintf(stderr,"	vega=%.7f\n",b2vr.vega(params));
+			fprintf(stderr,"	rho=%.7f\n",b2vr.rho(params));
+			fprintf(stderr,"	gamma=%.7f\n",b2vr.gamma(params));
+ */
+		}
+		fprintf(stderr,"binesh_sse=%.7f num_options=%d\n",binesh_sse, num_options);
+
+		double trevor_sse = 0.0;
+		double trevor_refined[] = {
+			.1852,
+			.0203
+		};
+		for (int i = 0; i < num_options; ++i) {
+			const double *params = trevor_refined;
+			bsmodel_2_vr b2vr(options[i]);
+			double computed = b2vr.value(params);
+			double actual = b2vr.actual_price();
+
+			trevor_sse += (actual - computed) * (actual - computed);
+/*
+			fprintf(stderr,"bs(%.2f, %.2f, %.7f, %.7f%%, %.7f%%) = %.7f	(actual=%.7f)\n",b2vr.strike(), b2vr.current(), 365 * b2vr.time_to_expiration(), 100 * b2vr.volatility(params), 100 * b2vr.risk_free_rate(params), computed, actual);
+			fprintf(stderr,"	delta=%.7f\n",b2vr.delta(params));
+			fprintf(stderr,"	theta=%.7f\n",b2vr.theta(params));
+			fprintf(stderr,"	vega=%.7f\n",b2vr.vega(params));
+			fprintf(stderr,"	rho=%.7f\n",b2vr.rho(params));
+			fprintf(stderr,"	gamma=%.7f\n",b2vr.gamma(params));
+ */
+		}
+		fprintf(stderr,"trevor_sse=%.7f num_options=%d\n",trevor_sse, num_options);
+
 	}
 
 	return(0);
 }
+@
+
+
+1.3
+log
+@-
+@
+text
+@d100 1
+a100 1
+		fprintf(stderr,"binesh_sse=%.7f\n",binesh_sse);
+d123 1
+a123 1
+		fprintf(stderr,"trevor_sse=%.7f\n",trevor_sse);
+@
+
+
+1.2
+log
+@-
+@
+text
+@d82 1
+d98 1
+@
+
+
+1.1
+log
+@-
+@
+text
+@d73 50
 @
