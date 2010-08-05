@@ -210,7 +210,7 @@ void cboe_reader::process_line(char parambuffer[],int& line_no) {
 				memset(call_exchange,'\0',sizeof(call_exchange));
 				parse_option(callopt, call_expiration, call_strike, call_symbol, call_exchange);
 				strftime(buffer,1024,"%Y-%m-%d %H:%M:%S",localtime(&call_expiration));
-				if ((call_exchange[0] == '\0') && (call_ask >= call_bid) && ((call_ask > 0.0) || (call_bid > 0.0)) && ((0 != strncmp(call_symbol,"UDL",3)) && (0 != strncmp(call_symbol,"OOF",3)) && (0 != strncmp(call_symbol,"UQQ",3))) && (call_expiration > _quote_time)) {
+				if ((call_exchange[0] == '\0') && (call_ask >= call_bid) && ((call_ask > 0.00) || (call_bid > 0.00)) && ((0 != strncmp(call_symbol,"UDL",3)) && (0 != strncmp(call_symbol,"OOF",3)) && (0 != strncmp(call_symbol,"UQQ",3))) && (call_expiration > _quote_time)) {
 					int found = -1;
 					for (int i = 0; (i < _num_options) && (found < 0); ++i) {
 						cboe_option_quote& coq = _options[i];
@@ -260,7 +260,7 @@ void cboe_reader::process_line(char parambuffer[],int& line_no) {
 				memset(put_exchange,'\0',sizeof(put_exchange));
 				parse_option(putopt, put_expiration, put_strike, put_symbol, put_exchange);
 				strftime(buffer,1024,"%Y-%m-%d %H:%M:%S",localtime(&put_expiration));
-				if ((put_exchange[0] == '\0') && (put_ask >= put_bid) && ((put_ask > 0.0) || (put_bid > 0.0)) && ((0 != strncmp(put_symbol,"UDL",3)) && (0 != strncmp(put_symbol,"OOF",3)) && (0 != strncmp(put_symbol,"UQQ",3))) && (put_expiration > _quote_time)) {
+				if ((put_exchange[0] == '\0') && (put_ask >= put_bid) && ((put_ask > 0.00) || (put_bid > 0.00)) && ((0 != strncmp(put_symbol,"UDL",3)) && (0 != strncmp(put_symbol,"OOF",3)) && (0 != strncmp(put_symbol,"UQQ",3))) && (put_expiration > _quote_time)) {
 					int found = -1;
 					for (int i = 0; (i < _num_options) && (found < 0); ++i) {
 						cboe_option_quote& coq = _options[i];

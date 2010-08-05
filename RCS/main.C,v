@@ -1,10 +1,20 @@
-head	1.4;
+head	1.6;
 access;
 symbols;
 locks
-	binesh:1.4; strict;
+	binesh:1.6; strict;
 comment	@ * @;
 
+
+1.6
+date	2010.08.04.18.36.32;	author binesh;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2010.08.04.18.36.06;	author binesh;	state Exp;
+branches;
+next	1.4;
 
 1.4
 date	2010.08.04.18.12.07;	author binesh;	state Exp;
@@ -31,7 +41,7 @@ desc
 @@
 
 
-1.4
+1.6
 log
 @-
 @
@@ -164,6 +174,28 @@ int main(int argc,char *argv[]) {
 
 	return(0);
 }
+@
+
+
+1.5
+log
+@-
+@
+text
+@d23 1
+a23 1
+//			((options[j].bid() > 0.05) && (options[j].ask() > 0.05)) &&
+@
+
+
+1.4
+log
+@-
+@
+text
+@d23 1
+a23 1
+			((options[j].bid() > 0.05) && (options[j].ask() > 0.05)) &&
 @
 
 
