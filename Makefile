@@ -16,13 +16,17 @@ LIB_SRCS=\
 	bsmodels/bsmodel_base.C \
 	bsmodels/bsmodel_base_support.C \
 	cboe_reader.C \
+	histogram.C \
+	jackwerth.C \
 	levenberg_marquardt.C \
 	levenberg_marquardt-binesh.C \
+	matrix.C \
 	svdecomposition.C \
 	time2str.C \
 
 BIN_SRCS=\
 	main.C \
+	test_jackwerth.C \
 	test_trevor.C \
 
 LEX_SRCS=\
@@ -39,6 +43,7 @@ DEPS=$(join $(dir $(CANDIDATES)),$(addprefix .,$(notdir $(CANDIDATES))))
 
 BINS=\
 	main \
+	test_jackwerth \
 	test_trevor \
 
 all: $(OBJS) $(BINS)
@@ -54,6 +59,9 @@ clean:
 	/bin/rm -f core $(OBJS) $(BINS) $(LEX_C_SRCS) $(DEPS)
 
 main: main.o $(LIB_OBJS)
+	$(CC) $(CFLAGS) $(^) -o $(@) $(LIBS)
+
+test_jackwerth: test_jackwerth.o $(LIB_OBJS)
 	$(CC) $(CFLAGS) $(^) -o $(@) $(LIBS)
 
 test_trevor: test_trevor.o $(LIB_OBJS)

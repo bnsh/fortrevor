@@ -210,13 +210,7 @@ void cboe_reader::process_line(char parambuffer[],int& line_no) {
 				memset(call_exchange,'\0',sizeof(call_exchange));
 				parse_option(callopt, call_expiration, call_strike, call_symbol, call_exchange);
 				strftime(buffer,1024,"%Y-%m-%d %H:%M:%S",localtime(&call_expiration));
-				if ((call_exchange[0] == '\0') && (call_ask >= call_bid) && ((call_ask > 0.00) || (call_bid > 0.00)) && ((0 != strncmp(call_symbol,"UDL",3)) && (0 != strncmp(call_symbol,"OOF",3)) && (0 != strncmp(call_symbol,"UQQ",3))) && (call_expiration > _quote_time)) {
-					int found = -1;
-					for (int i = 0; (i < _num_options) && (found < 0); ++i) {
-						cboe_option_quote& coq = _options[i];
-						if (0 == strcmp(coq.option_symbol(),call_symbol)) found=i;
-					}
-					if (found < 0) {
+				if ((call_ask >= call_bid) && ((call_ask > 0.00) || (call_bid > 0.00)) && ((0 != strncmp(call_symbol,"UDL",3)) && (0 != strncmp(call_symbol,"OOF",3)) && (0 != strncmp(call_symbol,"UQQ",3))) && (call_expiration > _quote_time)) {
 						if ((_num_options+1) > _allocated - 10) reallocate((_num_options+1) * 2);
 						_options[_num_options++]
 							.quote_time(_quote_time)
@@ -229,24 +223,6 @@ void cboe_reader::process_line(char parambuffer[],int& line_no) {
 							.expiration(call_expiration)
 							.bid(call_bid)
 							.ask(call_ask);
-					}
-					else {
-						fprintf(stderr,"%s: %d: %s Dropping option %s (Duplicate)\n",__FILE__,__LINE__,_filename, call_symbol);
-						cboe_option_quote& coq = _options[found];
-						int errs = 0;
-
-						if (coq.strike() != call_strike) { fprintf(stderr,"%s: %d: Found duplicate %s with differing strikes.\n",__FILE__,__LINE__,call_symbol); errs++; }
-						if (coq.expiration() != call_expiration) { fprintf(stderr,"%s: %d: Found duplicate %s with differing expirations.\n",__FILE__,__LINE__,call_symbol); errs++; }
-						if (coq.bid() != call_bid) { fprintf(stderr,"%s: %d: Found duplicate %s with differing bids.\n",__FILE__,__LINE__,call_symbol); errs++; }
-						if (coq.ask() != call_ask) { fprintf(stderr,"%s: %d: Found duplicate %s with differing asks.\n",__FILE__,__LINE__,call_symbol); errs++; }
-
-						assert(
-							(coq.strike() == call_strike) &&
-							(coq.expiration() == call_expiration) &&
-							(coq.bid() == call_bid) &&
-							(coq.ask() == call_ask)
-						);
-					}
 
 				}
 
@@ -260,13 +236,7 @@ void cboe_reader::process_line(char parambuffer[],int& line_no) {
 				memset(put_exchange,'\0',sizeof(put_exchange));
 				parse_option(putopt, put_expiration, put_strike, put_symbol, put_exchange);
 				strftime(buffer,1024,"%Y-%m-%d %H:%M:%S",localtime(&put_expiration));
-				if ((put_exchange[0] == '\0') && (put_ask >= put_bid) && ((put_ask > 0.00) || (put_bid > 0.00)) && ((0 != strncmp(put_symbol,"UDL",3)) && (0 != strncmp(put_symbol,"OOF",3)) && (0 != strncmp(put_symbol,"UQQ",3))) && (put_expiration > _quote_time)) {
-					int found = -1;
-					for (int i = 0; (i < _num_options) && (found < 0); ++i) {
-						cboe_option_quote& coq = _options[i];
-						if (0 == strcmp(coq.option_symbol(),put_symbol)) found=i;
-					}
-					if (found < 0) {
+				if ((put_ask >= put_bid) && ((put_ask > 0.00) || (put_bid > 0.00)) && ((0 != strncmp(put_symbol,"UDL",3)) && (0 != strncmp(put_symbol,"OOF",3)) && (0 != strncmp(put_symbol,"UQQ",3))) && (put_expiration > _quote_time)) {
 						if ((_num_options+1) > _allocated - 10) reallocate((_num_options+1) * 2);
 						_options[_num_options++]
 							.quote_time(_quote_time)
@@ -279,24 +249,6 @@ void cboe_reader::process_line(char parambuffer[],int& line_no) {
 							.expiration(put_expiration)
 							.bid(put_bid)
 							.ask(put_ask);
-					}
-					else {
-						fprintf(stderr,"%s: %d: %s Dropping option %s (Duplicate)\n",__FILE__,__LINE__,_filename, put_symbol);
-						cboe_option_quote& coq = _options[found];
-						int errs = 0;
-
-						if (coq.strike() != put_strike) { fprintf(stderr,"%s: %d: Found duplicate %s with differing strikes.\n",__FILE__,__LINE__,put_symbol); errs++; }
-						if (coq.expiration() != put_expiration) { fprintf(stderr,"%s: %d: Found duplicate %s with differing expirations.\n",__FILE__,__LINE__,put_symbol); errs++; }
-						if (coq.bid() != put_bid) { fprintf(stderr,"%s: %d: Found duplicate %s with differing bids.\n",__FILE__,__LINE__,put_symbol); errs++; }
-						if (coq.ask() != put_ask) { fprintf(stderr,"%s: %d: Found duplicate %s with differing asks.\n",__FILE__,__LINE__,put_symbol); errs++; }
-
-						assert(
-							(coq.strike() == put_strike) &&
-							(coq.expiration() == put_expiration) &&
-							(coq.bid() == put_bid) &&
-							(coq.ask() == put_ask)
-						);
-					}
 				}
 			}
 		}

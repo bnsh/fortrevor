@@ -20,7 +20,7 @@ static void compute_params(cboe_option_quote *options, int num_options,double *b
 		bsmodel_base *bm = new bsmodel_2_vr(options[j]);
 		model_opts[j] = bm;
 		if (
-			((options[j].bid() > 0.05) && (options[j].ask() > 0.05)) &&
+//			((options[j].bid() > 0.05) && (options[j].ask() > 0.05)) &&
 			1
 		) lm.add(bm);
 	}
@@ -71,14 +71,14 @@ int main(int argc,char *argv[]) {
 		fprintf(stderr,"implied yearly volatility: %.7f\n",refined[0]);
 		fprintf(stderr,"implied yearly risk free rate: %.7f\n",refined[1]);
 
-		double binesh_sse = 0.0;
+		double sse = 0.0;
 		for (int i = 0; i < num_options; ++i) {
 			const double *params = refined;
 			bsmodel_2_vr b2vr(options[i]);
 			double computed = b2vr.value(params);
 			double actual = b2vr.actual_price();
 
-			binesh_sse += (actual - computed) * (actual - computed);
+			sse += (actual - computed) * (actual - computed);
 /*
 			fprintf(stderr,"black_scholes(%.2f, %.2f, %.7f, %d, %.7f, %.7f) = %.7f	(actual=%.7f)\n",
 				b2vr.strike(),
@@ -97,31 +97,7 @@ int main(int argc,char *argv[]) {
 			fprintf(stderr,"	gamma=%.7f\n",b2vr.gamma(params));
  */
 		}
-		fprintf(stderr,"binesh_sse=%.7f num_options=%d\n",binesh_sse, num_options);
-
-		double trevor_sse = 0.0;
-		double trevor_refined[] = {
-			.1852,
-			.0203
-		};
-		for (int i = 0; i < num_options; ++i) {
-			const double *params = trevor_refined;
-			bsmodel_2_vr b2vr(options[i]);
-			double computed = b2vr.value(params);
-			double actual = b2vr.actual_price();
-
-			trevor_sse += (actual - computed) * (actual - computed);
-/*
-			fprintf(stderr,"bs(%.2f, %.2f, %.7f, %.7f%%, %.7f%%) = %.7f	(actual=%.7f)\n",b2vr.strike(), b2vr.current(), 365 * b2vr.time_to_expiration(), 100 * b2vr.volatility(params), 100 * b2vr.risk_free_rate(params), computed, actual);
-			fprintf(stderr,"	delta=%.7f\n",b2vr.delta(params));
-			fprintf(stderr,"	theta=%.7f\n",b2vr.theta(params));
-			fprintf(stderr,"	vega=%.7f\n",b2vr.vega(params));
-			fprintf(stderr,"	rho=%.7f\n",b2vr.rho(params));
-			fprintf(stderr,"	gamma=%.7f\n",b2vr.gamma(params));
- */
-		}
-		fprintf(stderr,"trevor_sse=%.7f num_options=%d\n",trevor_sse, num_options);
-
+		fprintf(stderr,"sse=%.7f num_options=%d\n",sse, num_options);
 	}
 
 	return(0);
